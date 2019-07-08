@@ -1,7 +1,7 @@
 package ch.nine.confluence.confidentiality.service
 
-import ch.nine.confluence.confidentiality.ConfidentialityRepository
-import ch.nine.confluence.confidentiality.api.Confidentiality
+import ch.nine.confluence.confidentiality.repository.ConfidentialityRepository
+import ch.nine.confluence.confidentiality.api.model.Confidentiality
 import ch.nine.confluence.confidentiality.auditlog.AuditLogger
 import com.atlassian.confluence.pages.Page
 import com.atlassian.confluence.security.Permission
@@ -18,43 +18,48 @@ import java.util.Optional.ofNullable
  */
 class ConfidentialityService constructor(private val repository: ConfidentialityRepository,
                                          private val logger: AuditLogger,
-                                         private val permissionManager: PermissionManager) {
+                                         private val permissionService: PermissionService) {
     companion object {
         private val log = LogManager.getLogger(this::class.java.name.substringBefore("\$Companion"))
     }
 
-    fun getConfidentiality(page: Page?): Confidentiality {
+    fun getConfidentiality(page: Page): Confidentiality {
         val confidentiality = repository.getConfidentiality(page)
-        return Confidentiality(confidentiality, canUserEdit(page))
+        val confidentialityOptions = repository.getSpaceConfidentialityOptions(page.space)
+        return Confidentiality(confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
     }
 
     fun saveConfidentiality(page: Page, newConfidentiality: String): Confidentiality {
         val oldConfidentiality = repository.getConfidentiality(page)
         val confidentiality = repository.save(page, newConfidentiality)
+        val confidentialityOptions = repository.getSpaceConfidentialityOptions(page.space)
+
         auditLog(oldConfidentiality, newConfidentiality, page)
-        return Confidentiality(confidentiality, canUserEdit(page))
+        return Confidentiality(confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
+    }
+
+    fun validateConfidentiality(page: Page, newConfidentiality: String): Boolean {
+        return newConfidentiality in repository.getSpaceConfidentialityOptions(page.space)
+    }
+
+    fun isConfidentialityEnabled(page:Page): Boolean {
+        return repository.isConfidentialityEnabled(page)
     }
 
     private fun auditLog(old: String, new: String, page: Page) {
         val user = ofNullable(AuthenticatedUserThreadLocal.get()).orElseThrow { RuntimeException("User cannot be unauthenticated!") }
         val change = ImmutablePair.of(old, new)
         log.info("User: ${user.name}, ${user.fullName} is changing confidentiality for page id: ${page.id}, change: $change")
-        logger.confidentialityChanged(page, change, user, permissionManager.isSystemAdministrator(user))
+        logger.confidentialityChanged(page, change, user, permissionService.isSystemAdministrator(user))
     }
 
     fun canUserEdit(page: Page?): Boolean {
-        return canUserDo(Permission.EDIT, page)
+        return permissionService.canUserEdit(page)
     }
 
     fun canUserView(page: Page?): Boolean {
-        return canUserDo(Permission.VIEW, page)
+        return permissionService.canUserView(page)
     }
 
-    private fun canUserDo(permission: Permission?, page: Page?): Boolean {
-        return canUserDo(AuthenticatedUserThreadLocal.get(), permission, page)
-    }
 
-    private fun canUserDo(user: ConfluenceUser, permission: Permission?, page: Page?): Boolean {
-        return permissionManager.hasPermission(user, permission, page)
-    }
 }

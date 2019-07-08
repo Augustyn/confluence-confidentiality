@@ -22,9 +22,9 @@ https://developer.atlassian.com/display/DOCS/Introduction+to+the+Atlassian+Plugi
 
 - [X] Improve style of confidentiality selector
 - [ ] Full i18n (currently all confidentiality strings are not translated on the client side)
-- [ ] Client code independent of `possibleConfidentialities` (so that the server entirely defines the set of possible confidentiality levels entirely)
+- [X] Client code independent of `possibleConfidentialities` (so that the server entirely defines the set of possible confidentiality levels entirely)
 - [ ] Admin UI (add/remove/rename possible confidentiality levels and change default confidentiality level)
-- [ ] Optional per-space confidentiality set / default confidentiality
+- [X] Optional per-space confidentiality set / default confidentiality
 - [X] Editing of the confidentiality tied to the edit preferences of the page
 - [ ] Change of confidentiality only possible within the editor
 - [ ] Chosen confidentiality has impact on user roles (e.g. that certain roles can't see 'Confidential' pages or can only see 'Public' pages)
@@ -45,7 +45,7 @@ Use `admin:admin` as login.
 * confluence-confidentiality.properties: Translations (they somehow don't work client side)
 * confluence-confidentiality.soy: Template for everything in the confidentiality-selector
 * Confidentiality.kt: Object for server response
-* ConfidentialityResource.kt: Server-Side Logic
+* ConfidentialityController.kt: Server-Side Logic
 * atlassian-plugin.xml: Resource Definition, Button Definition (change button icon etc.)
 
 # Important Documentation Resources

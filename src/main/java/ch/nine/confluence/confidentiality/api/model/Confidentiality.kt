@@ -1,4 +1,4 @@
-package ch.nine.confluence.confidentiality.api
+package ch.nine.confluence.confidentiality.api.model
 
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
@@ -9,8 +9,8 @@ import javax.xml.bind.annotation.XmlRootElement
  */
 @XmlRootElement
 class Confidentiality(private val confidentiality: String,
+                      private val possibleConfidentialities: List<String>,
                       private val canUserEdit: Boolean) {
-    private val possibleConfidentialities = arrayOf("public","internal","confidential")
 
     @XmlElement
     fun getConfidentiality() : String {
@@ -18,7 +18,7 @@ class Confidentiality(private val confidentiality: String,
     }
 
     @XmlElement
-    fun getPossibleConfidentialities() : Array<String> {
+    fun getPossibleConfidentialities() : List<String> {
         return possibleConfidentialities
     }
 

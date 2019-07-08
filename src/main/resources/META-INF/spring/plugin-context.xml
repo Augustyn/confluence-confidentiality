@@ -6,29 +6,53 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
         http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd"
-       default-autowire="constructor">
+>
 
     <context:component-scan base-package="ch.nine.confluence.confidentiality"/>
 
-    <bean id="confidentialityResource" class="ch.nine.confluence.confidentiality.api.ConfidentialityResource">
-        <constructor-arg ref="confidentialityService" />
-        <constructor-arg ref="pageManager" />
+    <bean id="configureSpaceAction" class="ch.nine.confluence.confidentiality.admin.ConfigureSpaceAction" />
+
+    <bean id="confidentialityController" class="ch.nine.confluence.confidentiality.api.ConfidentialityController">
+        <constructor-arg ref="confidentialityService"/>
+        <constructor-arg ref="pageManager"/>
     </bean>
+
+    <bean id="adminConfidentialityService" class="ch.nine.confluence.confidentiality.service.AdministrerConfidentialityService">
+        <constructor-arg ref="adminPropertyRepository" />
+        <constructor-arg ref="permissionService" />
+        <constructor-arg ref="auditLogger" />
+    </bean>
+
+    <bean id="adminPropertyRepository" class="ch.nine.confluence.confidentiality.repository.AdminPropertyRepository">
+        <constructor-arg ref="spacePropertyService"/>
+    </bean>
+
     <bean id="confidentialityService" class="ch.nine.confluence.confidentiality.service.ConfidentialityService">
         <constructor-arg ref="confidentialityRepository"/>
         <constructor-arg ref="auditLogger"/>
-        <constructor-arg ref="permissionManager"/>
-    </bean>
-    <bean id="confidentialityRepository" class="ch.nine.confluence.confidentiality.ConfidentialityRepository">
-        <constructor-arg ref="contentPropertyManager" />
-    </bean>
-    <bean id="auditLogger" class="ch.nine.confluence.confidentiality.auditlog.AuditLogger">
-        <constructor-arg ref="auditService" />
+        <constructor-arg ref="permissionService"/>
     </bean>
 
-    <osgi:reference id="pageManager" interface="com.atlassian.confluence.pages.PageManager" />
-    <osgi:reference id="auditService" interface="com.atlassian.confluence.api.service.audit.AuditService" />
+    <bean id="confidentialityRepository" class="ch.nine.confluence.confidentiality.repository.ConfidentialityRepository">
+        <constructor-arg ref="contentPropertyManager"/>
+        <constructor-arg ref="contentPropertyService"/>
+    </bean>
+
+    <bean id="auditLogger" class="ch.nine.confluence.confidentiality.auditlog.AuditLogger">
+        <constructor-arg ref="auditService"/>
+    </bean>
+
+    <bean id="permissionService" class="ch.nine.confluence.confidentiality.service.PermissionService">
+        <constructor-arg ref="permissionManager"/>
+        <constructor-arg ref="spacePermissionManager"/>
+    </bean>
+
+    <osgi:reference id="pageManager" interface="com.atlassian.confluence.pages.PageManager"/>
+    <osgi:reference id="auditService" interface="com.atlassian.confluence.api.service.audit.AuditService"/>
     <osgi:reference id="permissionManager" interface="com.atlassian.confluence.security.PermissionManager"/>
     <osgi:reference id="contentPropertyManager" interface="com.atlassian.confluence.core.ContentPropertyManager"/>
+    <osgi:reference id="spacePermissionManager" interface="com.atlassian.confluence.security.SpacePermissionManager"/>
+    <osgi:reference id="spacePropertyService" interface="com.atlassian.confluence.api.service.content.SpacePropertyService"/>
+    <osgi:reference id="contentPropertyService" interface="com.atlassian.confluence.api.service.content.ContentPropertyService"/>
 
 </beans>

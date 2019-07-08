@@ -49,6 +49,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.atlassian.confluence.plugins</groupId>
+      <artifactId>confluence-space-ia</artifactId>
+      <version>${space-ia.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.atlassian.sal</groupId>
       <artifactId>sal-api</artifactId>
       <version>3.0.0</version>
@@ -126,30 +132,7 @@
           <enableQuickReload>true</enableQuickReload>
           <encoding>${project.build.sourceEncoding}</encoding>
           <allowGoogleTracking>false</allowGoogleTracking>
-          <compressResources>false</compressResources>
-
-          <!-- See here for an explanation of default instructions: -->
-          <!-- https://developer.atlassian.com/docs/advanced-topics/configuration-of-instructions-in-atlassian-plugins -->
-          <instructions>
-            <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
-            <Spring-Context>*</Spring-Context>
-            <!-- Add package to export here -->
-            <Export-Package>
-              ch.nine.confluence.confidentiality.*,
-            </Export-Package>
-
-            <!-- Add package import here -->
-            <Import-Package>
-              org.springframework.osgi.*;resolution:="optional",
-              org.eclipse.gemini.blueprint.*;resolution:="optional",
-              com.atlassian.confluence.*;resolution:="optional",
-              com.atlassian.event.api.*;resolution:="optional",
-              *
-            </Import-Package>
-
-            <!-- Ensure plugin is spring powered -->
-            <Spring-Context>*</Spring-Context>
-          </instructions>
+            <compressResources>false</compressResources>
         </configuration>
       </plugin>
       <plugin>
@@ -179,7 +162,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.6.2</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
         <executions>
           <execution>
             <id>default-compile</id>
@@ -212,6 +199,7 @@
     <confluence.version>6.2.0</confluence.version>
     <confluence.data.version>6.2.0</confluence.data.version>
     <create.content.version>6.0.19</create.content.version>
+    <space-ia.version>13.1.4</space-ia.version>
     <amps.version>8.0.0</amps.version>
     <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
     <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->

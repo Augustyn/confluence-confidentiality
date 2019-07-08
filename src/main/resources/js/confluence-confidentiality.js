@@ -3,9 +3,7 @@
 AJS.toInit($ => {
   const dialogId = "confluence-confidentiality-dialog";
   const webItem = $("#confluence-confidentiality");
-  const url = `${AJS.contextPath()}/rest/confluence-confidentiality/1.0/confluence-confidentiality?pageId=${AJS.Meta.get(
-    "page-id"
-  )}`;
+  const url = `${AJS.contextPath()}/rest/confluence-confidentiality/1.0/confidentiality/${AJS.Meta.get("page-id")}`;
 
   let dataLoaded = false; // only load inline dialog contents once
   let dialog;
@@ -24,14 +22,14 @@ AJS.toInit($ => {
       default:
         return "clipboard";
     }
-  };
+    };
 
   const capitalize = str =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   const updateLabelAndIcon = response => {
-    currentConfidentiality = response.confidentiality;
-    userCanEdit = response.canUserEdit;
+        currentConfidentiality = response.confidentiality;
+        userCanEdit = response.canUserEdit;
 
     const iconNode = webItem.children("img");
     const textNode = webItem.children("span");
@@ -43,76 +41,69 @@ AJS.toInit($ => {
       "src",
       `${AJS.contextPath()}/download/resources/ch.nine.confluence-confidentiality:confluence-confidentiality-resources/images/${picture}`
     );
-    textNode.text(capitalize(response.confidentiality));
+        textNode.text(capitalize(response.confidentiality));
 
-    registerDialogOpenEvent();
-  };
+        registerDialogOpenEvent();
+    };
 
   const loadConfidentiality = () => {
-    $.ajax({
-      url: url,
+        $.ajax({
+            url: url,
       type: "GET",
       dataType: "json",
       contentType: "application/json"
-    }).done(updateLabelAndIcon);
-  };
+        }).done(updateLabelAndIcon);
+    };
 
   const registerDialogOpenEvent = () => {
-    if (eventRegistered) {
+        if (eventRegistered) {
       return;
-    } else {
-      eventRegistered = true;
-    }
+        } else {
+            eventRegistered = true;
+        }
 
-    if (userCanEdit) {
+        if (userCanEdit) {
       const saveFn = (theForm, dialogContent) => {
         return () => {
-          // Show spinner
-          dialogContent.html(
-            Confluence.Templates.Plugins.ConfluenceConfidentiality.loading()
-          );
-          dialogContent.find(".spinner").spin("medium");
-          dataLoaded = false;
+                    // Show spinner
+                    dialogContent.html(Confluence.Templates.Plugins.ConfluenceConfidentiality.loading());
+                    dialogContent.find(".spinner").spin("medium");
+                    dataLoaded = false;
 
-          $.ajax({
-            url: url,
-            type: "POST",
-            dataType: "json",
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        dataType: "json",
             data: $.param(theForm.find("input[checked], input[type!=radio]"))
           })
             .fail(jqXHR => {
-              dataLoaded = false;
-              if (jqXHR.status === 403) {
-                dialogContent.html(
-                  Confluence.Templates.Plugins.ConfluenceConfidentiality.forbidden()
-                );
-              } else {
-                dialogContent.html(
-                  Confluence.Templates.Plugins.ConfluenceConfidentiality.changeError()
-                );
-              }
+                        dataLoaded = false;
+                        if (jqXHR.status === 403) {
+                            dialogContent.html(Confluence.Templates.Plugins.ConfluenceConfidentiality.forbidden());
+                        } else {
+                            dialogContent.html(Confluence.Templates.Plugins.ConfluenceConfidentiality.changeError());
+                        }
             })
             .done(response => {
-              closeDialog();
-              updateLabelAndIcon(response);
-            });
+                        closeDialog();
+                        updateLabelAndIcon(response);
+                    });
 
-          return false;
-        };
+
+                    return false;
+            };
       };
       dialog = AJS.InlineDialog(
         webItem,
         dialogId,
         (content, trigger, showPopup) => {
-          if (!dataLoaded) {
-            content.html(
-              Confluence.Templates.Plugins.ConfluenceConfidentiality.loading()
-            );
-            content.find(".spinner").spin("medium");
-            $.ajax({
-              url: url,
-              type: "GET",
-              dataType: "json"
+                    if (!dataLoaded) {
+                        content.html(Confluence.Templates.Plugins.ConfluenceConfidentiality.loading());
+                        content.find(".spinner").spin("medium");
+                        $.ajax({
+                            url: url,
+                            type: "GET",
+                            dataType: "json"
             })
               .fail(() =>
                 content.html(
@@ -139,35 +130,33 @@ AJS.toInit($ => {
                   "#confluence-confidentiality-form"
                 );
 
-                content
-                  .find("#confluence-confidentiality-submit")
-                  .click(saveFn(theForm, content));
-                dataLoaded = true;
-              });
-          } else {
+                            content.find("#confluence-confidentiality-submit").click(saveFn(theForm, content));
+                            dataLoaded = true;
+                        });
+                    } else {
             content
               .find(
                 `#confluence-confidentiality-radio-${currentConfidentiality}`
               )
               .prop("checked", true);
-          }
-          showPopup();
-          return false;
-        }
-      );
+                    }
+                    showPopup();
+                    return false;
+                }
+            );
       webItem.click(closeDialog);
-    } else {
+        } else {
       webItem
         .click(() => false)
         .attr("aria-disabled", "true")
         .prop("disabled", true);
-    }
-  };
+        }
+    };
   const closeDialog = () => {
     if ($(`#inline-dialog-${dialogId}`).is(":visible")) {
-      dialog.hide();
-    }
-  };
+            dialog.hide();
+        }
+    };
 
-  loadConfidentiality();
+    loadConfidentiality();
 });

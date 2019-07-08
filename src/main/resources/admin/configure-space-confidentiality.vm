@@ -1,0 +1,58 @@
+#enable_html_escaping()
+<html>
+    <head>
+        <title>$action.getText("confluence-confidentiality.space.admin.page.title")</title>
+        <meta name="decorator" content="main"/>
+##        <meta name="decorator" content="atl.admin"> ## changes page layout to global admin
+        $webResourceManager.requireResource("com.atlassian.auiplugin:ajs")
+        $webResourceManager.requireResource("com.atlassian.auiplugin:aui-forms")
+        $webResourceManager.requireResource("com.atlassian.auiplugin:aui-label")
+        $webResourceManager.requireResource("com.atlassian.auiplugin:aui-flag")
+        $webResourceManager.requireResource("com.atlassian.auiplugin:aui-iconography")
+        $webResourceManager.requireResource("ch.nine.confluence-confidentiality:confluence-confidentiality-admin-resources")
+    </head>
+    #applyDecorator("root")
+        #decoratorParam("helper" $action.helper)
+        ## Name of the tab to highlight: space-administration is also valid.
+        #decoratorParam("context" "space-operations")
+
+        #applyDecorator ("root")
+            ## The .vmd to use - This one displays both in Space Admin and Space Tools.
+            #decoratorParam ("context" "spaceadminpanel")
+            ## Key of the web-item to highlight in Space Admin
+            #decoratorParam ("selection" "quick-link-manager-2")
+            ## Key of the web-item to highlight in Space Tools
+            #decoratorParam ("selectedSpaceToolsWebItem" "quick-link-manager")
+            #decoratorParam ("helper" $action.helper)
+            <body>
+                #foreach( $err in $action.getActionErrors() )
+                <div class="aui-message error closeable shadowed">
+                    <p class="title">
+                        <span class="aui-icon icon-error"></span>
+                        <strong>Error!</strong>
+                    </p>
+                    <p>$err</p>
+                </div>
+                #end
+                <div id="admin-confidentiality" class="aui">
+                    <div class="field-group">
+                        <div>
+                            <aui-label for="confidentiality-enabled">$i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.label")</aui-label>
+                            <aui-toggle label="toggle button" id="confidentiality-enabled" checked #if ($action.confidentialityEnabled() == true) checked #end></aui-toggle>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <button class="aui-button aui-button-primary" id="enable-confidentiality">#if($action.confidentialityEnabled() == true) $i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.enabled") #{else} $i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.disabled") #end</button>
+                        <span class="aui-icon aui-icon-small aui-iconfont-add-circle">Insert meaningful text here for accessibility</span>
+                    </div>
+                    <div class="field-group">
+                        <label for="confidentiality-list"></label>
+                        <table id="space-confidentiality-table">
+                            ## filled by JS.
+                        </table>
+                    </div>
+                </div>
+            </body>
+        #end
+    #end
+</html>

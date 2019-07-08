@@ -2,14 +2,14 @@
     <plugin-info>
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
         <param name="plugin-icon">images/clipboard_blue_solid_16x16.png</param>
         <param name="plugin-logo">images/clipboard_blue_solid_72x72.png</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
-    <resource type="i18n" name="i18n" location="confluence-confidentiality"/>
-    
+    <resource type="i18n" name="i18n" location="confluence-confidentiality" />
+
     <!-- add our web resources -->
     <web-resource key="confluence-confidentiality-resources" name="confluence-confidentiality Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
@@ -27,12 +27,30 @@
         <resource type="download" name="images/" location="/images"/>
 
         <context>viewcontent</context>
-        <!--<context>confluence-confidentiality</context>-->
+        <context>confluence-confidentiality</context>
+    </web-resource>
+
+    <!-- add our web resources -->
+    <web-resource key="confluence-confidentiality-admin-resources" name="confluence-confidentiality Web Resources 4 admin">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-forms</dependency>
+        <dependency>com.atlassian.auiplugin:aui-label</dependency>
+        <dependency>com.atlassian.auiplugin:aui-flag</dependency>
+        <dependency>com.atlassian.auiplugin:aui-iconography</dependency>
+        <dependency>com.atlassian.auiplugin:aui-restfultable</dependency>
+
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="admin-confidentiality.js" location="/js/admin-confluence-confidentiality.js"/>
+        <context>confluence-confidentiality</context>
     </web-resource>
 
     <web-item key="confluence-confidentiality" name="${confluence-confidentiality.label}2" section="page.metadata.banner" weight="80">
         <icon height="16" width="16">
-            <link linkId="confluence-confidentiality-icon">/download/resources/${project.groupId}.${project.artifactId}:confluence-confidentiality-resources/images/clipboard_grey_solid_16x16.png</link>
+            <link linkId="confluence-confidentiality-icon">
+                /download/resources/${project.groupId}.${project.artifactId}:confluence-confidentiality-resources/images/clipboard_grey_solid_16x16.png
+            </link>
         </icon>
         <label key="confluence-confidentiality.label"/>
         <tooltip key="confluence-confidentiality.label"/>
@@ -40,7 +58,50 @@
         <styleClass>aui-button aui-button-subtle</styleClass>
     </web-item>
 
+    <!-- Link to confidentiality plugin configuration that's in Tools toolbar -->
+    <web-item name="Edit confidentiality tools menu" key="edit-confidentiality-tools-menu-web-ui" section="system.content.action/primary" weight="100">
+        <description key="confluence-confidentiality.space.admin.quick.link.manager.description">Allows customization of confidentiality levels in current space.</description>
+        <label key="confluence-confidentiality.space.toolbar.link">Config confidentiality</label>
+        <link linkId="configure-confidentiality-action">
+            /plugins/${atlassian.plugin.key}/admin/configure.action?key=$generalUtil.urlEncode($helper.spaceKey)
+        </link>
+        <styleClass>aui-button aui-button-subtle</styleClass>
+    </web-item>
+
+    <!-- Item in Space Tools -->
+    <web-item key="space-admin-quick-link-manager" name="Quick Link Manager in Space Admin" section="system.content.action/addons" weight="100">
+        <label key="confluence-confidentiality.space.tools.quick.link.manager">Confidentiality</label>
+        <link linkId="space-admin-quick-link-manager-id">
+            /plugins/${atlassian.plugin.key}/admin/configure.action?key=$generalUtil.urlEncode($helper.spaceKey)
+        </link>
+        <styleClass>aui-button aui-button-subtle</styleClass>
+    </web-item>
+
+    <!-- Item in Space Admin (for Doc Theme) -->
+    <web-item key="space-admin-quick-link-manager-2" name="Quick Link Manager in Space Admin" section="system.space.admin/addons" weight="100">
+        <label key="confluence-confidentiality.space.admin.quick.link.manager">Confidentiality</label>
+        <link linkId="space-admin-quick-link-manager-id2">
+            /plugins/${atlassian.plugin.key}/admin/configure.action?key=$generalUtil.urlEncode($helper.spaceKey)
+        </link>
+        <styleClass>aui-button aui-button-subtle</styleClass>
+    </web-item>
+
+    <xwork name="Edit space confidentiality" key="edit-confidentiality-actions">
+        <description>Edit confidentiality for space</description>
+        <label key="confluence-confidentiality.space.admin.quick.link.manager">Confidentiality</label>
+        <package name="space-links-xwork-package" extends="default" namespace="/plugins/${atlassian.plugin.key}/admin">
+            <default-interceptor-ref name="validatingStack"/>
+            <action name="configure" class="ch.nine.confluence.confidentiality.admin.ConfigureSpaceAction" method="doDefault">
+                <result name="input" type="velocity">/admin/configure-space-confidentiality.vm</result>
+                <result name="success" type="velocity">/admin/configure-space-confidentiality.vm</result>
+                <result name="error" type="velocity">/admin/space-confidentiality-error.vm</result>
+            </action>
+        </package>
+    </xwork>
+
+    <!-- Responsible for "/api-name/api-version" part of url: http://<host>:<port>/refapp/rest/api-name/api-version/resource-name -->
     <rest key="confluence-confidentiality-rest" path="/confluence-confidentiality" version="1.0">
         <description>Provides services for retrieving confidentiality of a page</description>
     </rest>
+
 </atlassian-plugin>
