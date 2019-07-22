@@ -1,6 +1,6 @@
 package ch.nine.confluence.confidentiality.admin
 
-import ch.nine.confluence.confidentiality.service.AdministrerConfidentialityService
+import ch.nine.confluence.confidentiality.service.SpaceConfidentialityService
 import com.atlassian.confluence.security.Permission.ADMINISTER
 import com.atlassian.confluence.spaces.actions.SpaceAdminAction
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal
@@ -14,7 +14,7 @@ import org.apache.log4j.LogManager
  * configuration in spring/plugin-context.xml (both constructor injection and setter, as fallback).
  */
 class ConfigureSpaceAction: SpaceAdminAction() {
-    private lateinit var administerService: AdministrerConfidentialityService
+    private lateinit var administerService: SpaceConfidentialityService
 
     companion object {
         private val log = LogManager.getLogger(this::class.java.name.substringBefore("\$Companion"))
@@ -36,7 +36,7 @@ class ConfigureSpaceAction: SpaceAdminAction() {
     }
 
     // dependency injection must be done via setter methods
-    fun setAdministrerConfidentialityService(administerService: AdministrerConfidentialityService) {
+    fun setAdministrerConfidentialityService(administerService: SpaceConfidentialityService) {
         this.administerService = administerService
     }
 

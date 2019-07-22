@@ -3,11 +3,9 @@ package ch.nine.confluence.confidentiality.service
 import ch.nine.confluence.confidentiality.repository.ConfidentialityRepository
 import ch.nine.confluence.confidentiality.api.model.Confidentiality
 import ch.nine.confluence.confidentiality.auditlog.AuditLogger
+import ch.nine.confluence.confidentiality.repository.SpacePropertyRepository
 import com.atlassian.confluence.pages.Page
-import com.atlassian.confluence.security.Permission
-import com.atlassian.confluence.security.PermissionManager
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal
-import com.atlassian.confluence.user.ConfluenceUser
 import org.apache.commons.lang3.tuple.ImmutablePair
 import org.apache.log4j.LogManager
 import java.util.Optional.ofNullable
@@ -16,7 +14,8 @@ import java.util.Optional.ofNullable
  * Class responsible for managing confidentiality response per page.
  * Checks user permissions, and sends confidentiality changed events.
  */
-class ConfidentialityService constructor(private val repository: ConfidentialityRepository,
+class ConfidentialityService constructor(private val pageRepository: ConfidentialityRepository,
+                                         private val spaceRepository: SpacePropertyRepository,
                                          private val logger: AuditLogger,
                                          private val permissionService: PermissionService) {
     companion object {
@@ -24,26 +23,26 @@ class ConfidentialityService constructor(private val repository: Confidentiality
     }
 
     fun getConfidentiality(page: Page): Confidentiality {
-        val confidentiality = repository.getConfidentiality(page)
-        val confidentialityOptions = repository.getSpaceConfidentialityOptions(page.space)
+        val confidentiality = pageRepository.getConfidentiality(page)
+        val confidentialityOptions = spaceRepository.getSpaceConfidentialityOptions(page.space.key).map { it.getConfidentiality() }
         return Confidentiality(confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
     }
 
     fun saveConfidentiality(page: Page, newConfidentiality: String): Confidentiality {
-        val oldConfidentiality = repository.getConfidentiality(page)
-        val confidentiality = repository.save(page, newConfidentiality)
-        val confidentialityOptions = repository.getSpaceConfidentialityOptions(page.space)
+        val oldConfidentiality = pageRepository.getConfidentiality(page)
+        val confidentiality = pageRepository.save(page, newConfidentiality)
+        val confidentialityOptions = spaceRepository.getSpaceConfidentialityOptions(page.space.key).map { it.getConfidentiality() }
 
         auditLog(oldConfidentiality, newConfidentiality, page)
         return Confidentiality(confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
     }
 
     fun validateConfidentiality(page: Page, newConfidentiality: String): Boolean {
-        return newConfidentiality in repository.getSpaceConfidentialityOptions(page.space)
+        return newConfidentiality in spaceRepository.getSpaceConfidentialityOptions(page.space.key).map { it.getConfidentiality() }
     }
 
     fun isConfidentialityEnabled(page:Page): Boolean {
-        return repository.isConfidentialityEnabled(page)
+        return spaceRepository.isConfidentialityEnabled(page.space.key)
     }
 
     private fun auditLog(old: String, new: String, page: Page) {

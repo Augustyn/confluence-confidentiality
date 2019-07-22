@@ -1,7 +1,8 @@
 package ch.nine.confluence.confidentiality.admin
 
 import ch.nine.confluence.confidentiality.admin.model.AdministerConfidentialityRow
-import ch.nine.confluence.confidentiality.service.AdministrerConfidentialityService
+import ch.nine.confluence.confidentiality.api.model.NotFound
+import ch.nine.confluence.confidentiality.service.SpaceConfidentialityService
 import ch.nine.confluence.confidentiality.service.PermissionService
 import com.atlassian.confluence.spaces.Space
 import com.atlassian.confluence.spaces.SpaceManager
@@ -18,7 +19,7 @@ import javax.ws.rs.core.Response.Status.NOT_FOUND
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/administer/confidentiality")
-class ConfidentialityAdminController constructor(private val service: AdministrerConfidentialityService,
+class ConfidentialityAdminController constructor(private val service: SpaceConfidentialityService,
                                                  private val permissionService: PermissionService,
                                                  private val spaceManager: SpaceManager) {
     companion object {
@@ -62,15 +63,16 @@ class ConfidentialityAdminController constructor(private val service: Administre
     @PUT
     @Path("/{spaceKey}/{id}")
     fun updateConfidentiality(@PathParam("spaceKey") spaceKey: String,
-                              @PathParam("id") id: String,
-                              @FormParam("confidentiality") confidentiality: String): Response {
+                              @PathParam("id") id: Int?,
+                              confidentiality: AdministerConfidentialityRow): Response {
         return try {
             val space = spaceManager.getSpace(spaceKey)
             when {
+                (id == null) -> notFound("Invalid id: $id")
                 (space == null) -> notFound()
                 (!canViewSpace(space)) -> forbidden()
                 (!canAdministerSpace(space)) -> forbidden()
-                else -> Response.ok(service.addConfidentiality(space, confidentiality)).build()
+                else -> Response.ok(service.updateConfidentiality(space, id, confidentiality)).build()
             }
         } catch (e: Exception) {
             log.error("Exception occurred while trying to add new confidentiality: $confidentiality, for space: $spaceKey", e)
@@ -81,18 +83,17 @@ class ConfidentialityAdminController constructor(private val service: Administre
     @DELETE
     @Path("/{spaceKey}/{id}")
     fun deleteConfidentialityOption(@PathParam("spaceKey") spaceKey: String,
-                                    @PathParam("id") id: String,
-                                    @FormParam("confidentiality") confidentiality: String) : Response {
+                                    @PathParam("id") id: Int): Response {
         return try {
             val space = spaceManager.getSpace(spaceKey)
             when {
-                (space == null) -> notFound()
+                (space == null) -> notFound("Invalid id: $id")
                 (!canViewSpace(space)) -> forbidden()
                 (!canAdministerSpace(space)) -> forbidden()
-                else -> Response.ok(service.removeConfidentiality(space, id, confidentiality)).build()
+                else -> Response.ok(service.removeConfidentiality(space, id)).build()
             }
         } catch (e: Exception) {
-            log.error("Exception occurred while trying to add new confidentiality: $confidentiality, for space: $spaceKey", e)
+            log.error("Exception occurred while trying to remove confidentiality with id: $id, for space: $spaceKey", e)
             return serverError()
         }
     }
@@ -100,13 +101,16 @@ class ConfidentialityAdminController constructor(private val service: Administre
     private fun canViewSpace(space: Space): Boolean {
         return permissionService.canUserView(space)
     }
+
     private fun canAdministerSpace(space: Space): Boolean {
         return permissionService.canUserAdministrerSpace(space)
     }
 
     private fun forbidden() = Response.status(FORBIDDEN).build()
 
-    private fun notFound() = Response.status(NOT_FOUND).build()
+    private fun notFound(msg: String): Response = Response.status(NOT_FOUND).entity(NotFound(msg)).build()
+
+    private fun notFound(): Response = Response.status(NOT_FOUND).build()
 
     private fun serverError() = Response.serverError().build()
 }

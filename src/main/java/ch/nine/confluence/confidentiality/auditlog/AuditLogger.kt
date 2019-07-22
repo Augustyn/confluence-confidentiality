@@ -1,6 +1,6 @@
 package ch.nine.confluence.confidentiality.auditlog
 
-import ch.nine.confluence.confidentiality.admin.model.AdministerConfidentiality
+import ch.nine.confluence.confidentiality.admin.model.AdministerConfidentialityRow
 import com.atlassian.confluence.api.model.audit.AffectedObject
 import com.atlassian.confluence.api.model.audit.AuditRecord
 import com.atlassian.confluence.api.model.people.User
@@ -31,11 +31,27 @@ class AuditLogger constructor(private val storage: AuditService) {
         storage.storeRecord(auditRecord)
     }
 
-    fun confidentialityChanged(space: Space, change: ImmutablePair<AdministerConfidentiality, AdministerConfidentiality>, byUser: ConfluenceUser, isSysAdm: Boolean) {
+    fun confidentialitySaved(space: Space, list: List<AdministerConfidentialityRow>, user: ConfluenceUser, isAdmin: Boolean) {
+        val longDescription = "Confidentiality for space $space saved by user: $user, admin? $isAdmin. New confidentiality options: ${list.joinToString { " " }}"
+        log.info(longDescription)
+        val summary = "New confidentiality list for space: $space"
+        val auditRecord = buildAuditRecord(mapToAffectedObject(space), longDescription, summary, user, isAdmin)
+        storage.storeRecord(auditRecord)
+    }
+
+    fun confidentialityChanged(space: Space, change: ImmutablePair<AdministerConfidentialityRow, AdministerConfidentialityRow>, byUser: ConfluenceUser, isSysAdm: Boolean) {
         val longDescription = "Confidentiality for space '${space.key}', id: ${space.id} changed from: '${change.left}' to: ${change.right}, by user: $byUser. Sys adm? $isSysAdm"
         log.info(longDescription)
         val summary = "Space id: ${space.id} confidentiality changed"
         val auditRecord = buildAuditRecord(mapToAffectedObject(space), longDescription, summary, byUser, isSysAdm)
+        storage.storeRecord(auditRecord)
+    }
+
+    fun confidentialityRemoved(space: Space, row: AdministerConfidentialityRow?, user: ConfluenceUser, isSysAdm: Boolean) {
+        val longDescription = "Confidentiality $row removed for space '$space', by user: by user: $user. Sys adm? $isSysAdm"
+        log.info(longDescription)
+        val summary = "Space id: $space confidentiality id ${row?.getId()} removed"
+        val auditRecord = buildAuditRecord(mapToAffectedObject(space), longDescription, summary, user, isSysAdm)
         storage.storeRecord(auditRecord)
     }
 

@@ -17,25 +17,27 @@
         <constructor-arg ref="pageManager"/>
     </bean>
 
-    <bean id="adminConfidentialityService" class="ch.nine.confluence.confidentiality.service.AdministrerConfidentialityService">
-        <constructor-arg ref="adminPropertyRepository" />
+    <bean id="spaceConfidentialityService" class="ch.nine.confluence.confidentiality.service.SpaceConfidentialityService">
+        <constructor-arg ref="spacePropertyRepository" />
         <constructor-arg ref="permissionService" />
         <constructor-arg ref="auditLogger" />
     </bean>
 
-    <bean id="adminPropertyRepository" class="ch.nine.confluence.confidentiality.repository.AdminPropertyRepository">
+    <bean id="spacePropertyRepository" class="ch.nine.confluence.confidentiality.repository.SpacePropertyRepository">
         <constructor-arg ref="spacePropertyService"/>
+        <constructor-arg ref="i18NBeanFactory" />
     </bean>
 
     <bean id="confidentialityService" class="ch.nine.confluence.confidentiality.service.ConfidentialityService">
         <constructor-arg ref="confidentialityRepository"/>
+        <constructor-arg ref="spacePropertyRepository" />
         <constructor-arg ref="auditLogger"/>
         <constructor-arg ref="permissionService"/>
     </bean>
 
     <bean id="confidentialityRepository" class="ch.nine.confluence.confidentiality.repository.ConfidentialityRepository">
         <constructor-arg ref="contentPropertyManager"/>
-        <constructor-arg ref="contentPropertyService"/>
+        <constructor-arg ref="i18NBeanFactory"/>
     </bean>
 
     <bean id="auditLogger" class="ch.nine.confluence.confidentiality.auditlog.AuditLogger">
@@ -48,6 +50,7 @@
     </bean>
 
     <osgi:reference id="pageManager" interface="com.atlassian.confluence.pages.PageManager"/>
+    <osgi:reference id="i18NBeanFactory" interface="com.atlassian.confluence.util.i18n.I18NBeanFactory" />
     <osgi:reference id="auditService" interface="com.atlassian.confluence.api.service.audit.AuditService"/>
     <osgi:reference id="permissionManager" interface="com.atlassian.confluence.security.PermissionManager"/>
     <osgi:reference id="contentPropertyManager" interface="com.atlassian.confluence.core.ContentPropertyManager"/>
