@@ -2,6 +2,8 @@ package ch.nine.confluence.confidentiality.repository
 
 import ch.nine.confluence.confidentiality.admin.model.AdministerConfidentiality
 import ch.nine.confluence.confidentiality.admin.model.AdministerConfidentialityRow
+import ch.nine.confluence.confidentiality.repository.ConfigurationKeys.CONFIDENTIALITY_ENABLED
+import ch.nine.confluence.confidentiality.repository.ConfigurationKeys.CONFIDENTIALITY_LIST
 import com.atlassian.confluence.api.model.Expansion
 import com.atlassian.confluence.api.model.JsonString
 import com.atlassian.confluence.api.model.content.JsonSpaceProperty
@@ -49,13 +51,13 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
                 .split(",")
                 .map {
                     val row = it.split("#")
-                    AdministerConfidentialityRow(numOrDefault(row[0],list.size), row[1])
+                    AdministerConfidentialityRow(numOrDefault(row[0], list.size), row[1])
                 }
     }
 
     fun getSpaceConfidentialityProperty(space: String): AdministerConfidentiality {
         val spaceOptions = getSpaceConfidentialityOptions(space)
-        val enabled = getSpaceConfidentialityProperty(space, ConfigurationKeys.CONFIDENTIALITY_ENABLED)?.toBoolean() ?: false
+        val enabled = getSpaceConfidentialityProperty(space, CONFIDENTIALITY_ENABLED)?.toBoolean() ?: false
         return AdministerConfidentiality(enabled, spaceOptions.map { it.getConfidentiality() })
     }
 
@@ -113,19 +115,20 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
                 .fetchOne()
                 .onEach {
                     val oldVersion = it.version?.number
-                    val newSpaceProperty = toSpaceProperty(spaceKey, propertyString, (oldVersion?.plus(1) ?: 1) , propertyKey)
+                    val newSpaceProperty = toSpaceProperty(spaceKey, propertyString, (oldVersion?.plus(1)
+                            ?: 1), propertyKey)
                     propertyService.update(newSpaceProperty)
                 }.orElse {
-                    val spaceProperty = toSpaceProperty(spaceKey, propertyString, 1 , propertyKey)
+                    val spaceProperty = toSpaceProperty(spaceKey, propertyString, 1, propertyKey)
                     option(propertyService.create(spaceProperty))
                 }
     }
 
-    private fun storePropertyEnabled(spaceKey: String, property: String) = storeSpaceProperty(spaceKey, property, ConfigurationKeys.CONFIDENTIALITY_ENABLED)
-    private fun getConfidentialityEnabled(spaceKey: String) = getSpaceConfidentialityProperty(spaceKey, ConfigurationKeys.CONFIDENTIALITY_ENABLED)
+    private fun storePropertyEnabled(spaceKey: String, property: String) = storeSpaceProperty(spaceKey, property, CONFIDENTIALITY_ENABLED)
+    private fun getConfidentialityEnabled(spaceKey: String) = getSpaceConfidentialityProperty(spaceKey, CONFIDENTIALITY_ENABLED)
 
-    private fun storePropertyList(spaceKey: String, property: String) = storeSpaceProperty(spaceKey, property, ConfigurationKeys.CONFIDENTIALITY_LIST)
-    private fun getConfidentialityList(spaceKey: String) = getSpaceConfidentialityProperty(spaceKey, ConfigurationKeys.CONFIDENTIALITY_LIST)
+    private fun storePropertyList(spaceKey: String, property: String) = storeSpaceProperty(spaceKey, property, CONFIDENTIALITY_LIST)
+    private fun getConfidentialityList(spaceKey: String) = getSpaceConfidentialityProperty(spaceKey, CONFIDENTIALITY_LIST)
 
     private fun getSpaceConfidentialityProperty(spaceKey: String, propertyKey: String): String? {
         return propertyService.find(expansion).withSpaceKey(spaceKey).withPropertyKey(propertyKey).fetchOneOrNull()?.value?.value
@@ -134,11 +137,11 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
     private fun removeSpaceProperty(spaceKey: String, property: String?) {
         propertyService.find(expansion)
                 .withSpaceKey(spaceKey)
-                .withPropertyKey(property ?: ConfigurationKeys.CONFIDENTIALITY_LIST)
+                .withPropertyKey(property ?: CONFIDENTIALITY_LIST)
                 .fetchOne()
                 .onEach {
                     propertyService.delete(toSpaceProperty(spaceKey, it.value.value, (it.version?.number ?: 1), property
-                            ?: ConfigurationKeys.CONFIDENTIALITY_LIST))
+                            ?: CONFIDENTIALITY_LIST))
                 }
     }
 

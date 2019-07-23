@@ -23,18 +23,26 @@ class ConfidentialityService constructor(private val pageRepository: Confidentia
     }
 
     fun getConfidentiality(page: Page): Confidentiality {
+        val enabled = spaceRepository.isConfidentialityEnabled(page.space.key)
+        if (!enabled) {
+            return Confidentiality(enabled, null, null, null)
+        }
         val confidentiality = pageRepository.getConfidentiality(page)
         val confidentialityOptions = spaceRepository.getSpaceConfidentialityOptions(page.space.key).map { it.getConfidentiality() }
-        return Confidentiality(confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
+        return Confidentiality(enabled, confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
     }
 
     fun saveConfidentiality(page: Page, newConfidentiality: String): Confidentiality {
+        val enabled = spaceRepository.isConfidentialityEnabled(page.space.key)
+        if (!enabled) {
+            return Confidentiality(enabled, null, null, null)
+        }
         val oldConfidentiality = pageRepository.getConfidentiality(page)
         val confidentiality = pageRepository.save(page, newConfidentiality)
         val confidentialityOptions = spaceRepository.getSpaceConfidentialityOptions(page.space.key).map { it.getConfidentiality() }
 
         auditLog(oldConfidentiality, newConfidentiality, page)
-        return Confidentiality(confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
+        return Confidentiality(enabled, confidentiality, confidentialityOptions, permissionService.canUserEdit(page))
     }
 
     fun validateConfidentiality(page: Page, newConfidentiality: String): Boolean {

@@ -8,22 +8,28 @@ import javax.xml.bind.annotation.XmlRootElement
  * for JavaScript part of the plugin.
  */
 @XmlRootElement
-class Confidentiality(private val confidentiality: String,
-                      private val possibleConfidentialities: List<String>,
-                      private val canUserEdit: Boolean) {
+class Confidentiality(private val enabled: Boolean,
+                      private val confidentiality: String?,
+                      private val possibleConfidentialities: List<String>?,
+                      private val canUserEdit: Boolean?) {
+    @XmlElement
+    fun isEnabled() : Boolean {
+        return enabled
+    }
 
     @XmlElement
-    fun getConfidentiality() : String {
+    fun getConfidentiality() : String? {
         return confidentiality
     }
 
     @XmlElement
-    fun getPossibleConfidentialities() : List<String> {
+    fun getPossibleConfidentialities() : List<String>? {
         return possibleConfidentialities
     }
 
     @XmlElement
-    fun getCanUserEdit() : Boolean {
+    fun getCanUserEdit() : Boolean? {
         return canUserEdit
     }
+
 }

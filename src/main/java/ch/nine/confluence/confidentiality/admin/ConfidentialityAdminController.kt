@@ -2,8 +2,8 @@ package ch.nine.confluence.confidentiality.admin
 
 import ch.nine.confluence.confidentiality.admin.model.AdministerConfidentialityRow
 import ch.nine.confluence.confidentiality.api.model.NotFound
-import ch.nine.confluence.confidentiality.service.SpaceConfidentialityService
 import ch.nine.confluence.confidentiality.service.PermissionService
+import ch.nine.confluence.confidentiality.service.SpaceConfidentialityService
 import com.atlassian.confluence.spaces.Space
 import com.atlassian.confluence.spaces.SpaceManager
 import org.apache.log4j.LogManager
@@ -112,5 +112,5 @@ class ConfidentialityAdminController constructor(private val service: SpaceConfi
 
     private fun notFound(): Response = Response.status(NOT_FOUND).build()
 
-    private fun serverError() = Response.serverError().build()
+    private fun serverError() = Response.serverError().entity(false).build()
 }

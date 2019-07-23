@@ -11,56 +11,61 @@ AJS.toInit($ => {
   let userCanEdit = false;
   let eventRegistered = false;
 
-  const pictogram = confidentiality => {
-    switch (confidentiality) {
-      case "public":
-        return "eye";
-      case "internal":
-        return "eye_hidden";
-      case "confidential":
-        return "lock";
-      default:
-        return "clipboard";
-    }
+    const pictogram = confidentiality => {
+        switch (confidentiality) {
+            case "public":
+                return "eye";
+            case "internal":
+                return "eye_hidden";
+            case "confidential":
+                return "lock";
+            default:
+                return "clipboard";
+        }
     };
 
   const capitalize = str =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-  const updateLabelAndIcon = response => {
+    const updateLabelAndIcon = response => {
+        if (!response.isEnabled) {
+            AJS.log(`Removing confidentiality plugin feature, as it is disabled for space: ${AJS.Meta.get("space-key")}`);
+            $('#confluence-confidentiality-wrapper').empty();
+            return;
+        }
         currentConfidentiality = response.confidentiality;
         userCanEdit = response.canUserEdit;
 
-    const iconNode = webItem.children("img");
-    const textNode = webItem.children("span");
+        const iconNode = webItem.children("img");
+        const textNode = webItem.children("span");
 
-    const picture = `${pictogram(
-      response.confidentiality
-    )}_blue_solid_16x16.png`;
-    iconNode.attr(
-      "src",
-      `${AJS.contextPath()}/download/resources/ch.nine.confluence-confidentiality:confluence-confidentiality-resources/images/${picture}`
-    );
+        const picture = `${pictogram(
+            response.confidentiality
+        )}_blue_solid_16x16.png`;
+        iconNode.attr(
+            "src",
+            `${AJS.contextPath()}/download/resources/ch.nine.confluence-confidentiality:confluence-confidentiality-resources/images/${picture}`
+        );
         textNode.text(capitalize(response.confidentiality));
 
         registerDialogOpenEvent();
     };
 
   const loadConfidentiality = () => {
-        $.ajax({
-            url: url,
-      type: "GET",
-      dataType: "json",
-      contentType: "application/json"
-        }).done(updateLabelAndIcon);
-    };
+      $.ajax({
+          url: url,
+          type: "GET",
+          dataType: "json",
+          contentType: "application/json"
+      }).done(updateLabelAndIcon);
+  };
 
   const registerDialogOpenEvent = () => {
-        if (eventRegistered) {
-      return;
-        } else {
-            eventRegistered = true;
-        }
+      if (eventRegistered) {
+          return;
+      } else {
+          eventRegistered = true;
+      }
 
         if (userCanEdit) {
       const saveFn = (theForm, dialogContent) => {
