@@ -21,7 +21,7 @@
   <repositories>
     <repository>
       <id>atlassian-public</id>
-      <url>https://packages.atlassian.com/mvn/maven-external/</url>
+      <url>https://packages.atlassian.com/content/repositories/atlassian-public/</url>
       <snapshots>
         <enabled>true</enabled>
         <updatePolicy>never</updatePolicy>
