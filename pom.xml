@@ -200,7 +200,7 @@
     <confluence.data.version>6.2.0</confluence.data.version>
     <create.content.version>6.0.19</create.content.version>
     <space-ia.version>13.1.4</space-ia.version>
-    <amps.version>8.0.0</amps.version>
+    <amps.version>8.0.2</amps.version>
     <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
     <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>

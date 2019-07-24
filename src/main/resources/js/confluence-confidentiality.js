@@ -28,7 +28,7 @@ AJS.toInit($ => {
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
     const updateLabelAndIcon = response => {
-        if (!response.isEnabled) {
+        if (response && !response.enabled) {
             AJS.log(`Removing confidentiality plugin feature, as it is disabled for space: ${AJS.Meta.get("space-key")}`);
             $('#confluence-confidentiality-wrapper').empty();
             return;

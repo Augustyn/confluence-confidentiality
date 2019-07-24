@@ -1,8 +1,8 @@
 package ch.nine.confluence.confidentiality.service
 
-import ch.nine.confluence.confidentiality.repository.ConfidentialityRepository
 import ch.nine.confluence.confidentiality.api.model.Confidentiality
 import ch.nine.confluence.confidentiality.auditlog.AuditLogger
+import ch.nine.confluence.confidentiality.repository.ConfidentialityRepository
 import ch.nine.confluence.confidentiality.repository.SpacePropertyRepository
 import com.atlassian.confluence.pages.Page
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal
