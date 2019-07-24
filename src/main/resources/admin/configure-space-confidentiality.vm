@@ -30,23 +30,18 @@
                 </div>
                 #end
                 <div id="admin-confidentiality" class="aui">
-                    ## TODO: make it work, instead of button:
-##                    <div class="field-group">
-##                        <aui-label for="confidentiality-enabled">$i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.label")</aui-label>
-##                        <aui-toggle label="toggle button" id="confidentiality-enabled" checked #if ($action.confidentialityEnabled() == true) checked #end></aui-toggle>
-##                    </div>
-                    <div class="field-group"> ## FIXME: acctually make it store value:
-                        <label for="enable-confidentiality">$i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.label")</label>
-                        <button class="aui-button aui-button-primary" id="enable-confidentiality">#if($action.confidentialityEnabled() == true) $i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.enabled") #{else} $i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.disabled") #end</button>
-                    </div>
-##                    #if($action.confidentialityEnabled()) ## TODO: uncoment when storing isEnabled will work
                     <div class="field-group">
+                        <aui-label for="toggle-confidentiality">$i18n.getText("confluence-confidentiality.space.admin.page.confidentiality.button.label")</aui-label>
+                        <aui-toggle label="toggle button" id="toggle-confidentiality" #if ($action.confidentialityEnabled() == true) checked="" #end></aui-toggle>
+                    </div>
+                    <div class="field-group" id="confidentiality-list-wrapper">
+##                        #if($action.confidentialityEnabled())
                         <label for="space-confidentiality-table"></label>
                         <table id="space-confidentiality-table">
                             ## filled by JS.
                         </table>
+##                        #end
                     </div>
-##                    #end
                 </div>
             </body>
         #end

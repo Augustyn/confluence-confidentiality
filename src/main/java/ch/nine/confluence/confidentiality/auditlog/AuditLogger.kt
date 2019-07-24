@@ -39,7 +39,7 @@ class AuditLogger constructor(private val storage: AuditService) {
         storage.storeRecord(auditRecord)
     }
 
-    fun confidentialityChanged(space: Space, change: ImmutablePair<AdministerConfidentialityRow, AdministerConfidentialityRow>, byUser: ConfluenceUser, isSysAdm: Boolean) {
+    fun confidentialityChanged(space: Space, change: ImmutablePair<String, String>, byUser: ConfluenceUser, isSysAdm: Boolean) {
         val longDescription = "Confidentiality for space '${space.key}', id: ${space.id} changed from: '${change.left}' to: ${change.right}, by user: $byUser. Sys adm? $isSysAdm"
         log.info(longDescription)
         val summary = "Space id: ${space.id} confidentiality changed"

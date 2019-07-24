@@ -33,9 +33,12 @@
     <!-- add our web resources -->
     <web-resource key="confluence-confidentiality-admin-resources" name="confluence-confidentiality Web Resources 4 admin">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-flag</dependency>
         <dependency>com.atlassian.auiplugin:aui-forms</dependency>
         <dependency>com.atlassian.auiplugin:aui-label</dependency>
-        <dependency>com.atlassian.auiplugin:aui-flag</dependency>
+        <dependency>com.atlassian.auiplugin:aui-button</dependency>
+        <dependency>com.atlassian.auiplugin:aui-toggle</dependency>
+        <dependency>com.atlassian.auiplugin:aui-spinner</dependency>
         <dependency>com.atlassian.auiplugin:aui-iconography</dependency>
         <dependency>com.atlassian.auiplugin:aui-restfultable</dependency>
 

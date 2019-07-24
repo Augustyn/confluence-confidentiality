@@ -26,6 +26,23 @@ class ConfidentialityAdminController constructor(private val service: SpaceConfi
         private val log = LogManager.getLogger(this::class.java.name.substringBefore("\$Companion"))
     }
 
+    @PUT
+    @Path("/enabled/{spaceKey}")
+    fun changeConfidentialityEnabled(@PathParam("spaceKey") spaceKey: String): Response {
+        return try {
+            val space = spaceManager.getSpace(spaceKey)
+            when {
+                (space == null) -> notFound()
+                (!canViewSpace(space)) -> forbidden()
+                (!canAdministerSpace(space)) -> forbidden()
+                else -> Response.ok(service.changeEnabled(space)).build()
+            }
+        } catch (e: Exception) {
+            log.error("Exception occurred while trying to get page with id: $spaceKey", e)
+            return serverError()
+        }
+    }
+
     @GET
     @Path("/{spaceKey}")
     fun getConfidentialityOptions(@PathParam("spaceKey") spaceKey: String): Response {
@@ -34,6 +51,7 @@ class ConfidentialityAdminController constructor(private val service: SpaceConfi
             when {
                 (space == null) -> notFound()
                 (!canViewSpace(space)) -> forbidden()
+                (!canAdministerSpace(space)) -> forbidden()
                 else -> Response.ok(service.getConfidentialityOptions(space)).build()
             }
         } catch (e: Exception) {

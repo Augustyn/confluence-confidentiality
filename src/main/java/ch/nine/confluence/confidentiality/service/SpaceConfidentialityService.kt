@@ -23,6 +23,12 @@ class SpaceConfidentialityService constructor(private val repository: SpacePrope
         private const val unauthenticated = "User cannot be unauthenticated!"
     }
 
+    fun changeEnabled(space: Space): Boolean {
+        val enabled = repository.isConfidentialityEnabled(space.key)
+        auditLog(space, enabled)
+        return repository.storeProperty(space.key, !enabled)
+    }
+
     fun getConfidentiality(space: Space): AdministerConfidentiality {
         return repository.getSpaceConfidentialityProperty(space.key)
     }
@@ -33,9 +39,11 @@ class SpaceConfidentialityService constructor(private val repository: SpacePrope
 
     fun saveConfidentiality(space: Space, confidentiality: AdministerConfidentialityRow): AdministerConfidentialityRow {
         val options = repository.getSpaceConfidentialityOptions(space.key) as MutableList<AdministerConfidentialityRow>
-        options.add(AdministerConfidentialityRow(countRowId(options), normalizeConfidentiality(confidentiality.getConfidentiality())))
+        options.add(confidentiality)
+        val normalizedOptions = reCountRowId(options)
         auditLog(listOf(confidentiality), space)
-        return repository.storeProperty(space.key, options).first{ it.getId() == confidentiality.getId() }
+        val savedList = repository.storeProperty(space.key, normalizedOptions)
+        return savedList.first{ normalizeConfidentiality(it.getConfidentiality()) == confidentiality.getConfidentiality() }
     }
 
     fun updateConfidentiality(space: Space, id: Int, confidentiality: AdministerConfidentialityRow): AdministerConfidentialityRow {
@@ -50,14 +58,19 @@ class SpaceConfidentialityService constructor(private val repository: SpacePrope
         return repository.storeProperty(space.key, options).first { it.getId() == id }
     }
 
-    private fun countRowId(options: MutableList<AdministerConfidentialityRow>): Int {
-        val maxIdRow = options.maxWith(Comparator.comparingInt { it.getId() })
-        return maxOf((maxIdRow?.getId() ?: 0), options.size + 1)
+    private fun reCountRowId(options: List<AdministerConfidentialityRow>): List<AdministerConfidentialityRow> {
+        return options.mapIndexed { idx, row -> AdministerConfidentialityRow((idx+1), normalizeConfidentiality(row.getConfidentiality())) }
     }
 
-    private fun normalizeConfidentiality(confidentiality: String) =
+    private fun normalizeConfidentiality(confidentiality: String?) =
             // characters # and , are separators for storing confidentiality option. They cannot be used as the value
-            confidentiality.toLowerCase().replace("#", "").replace(",", "")
+            confidentiality?.toLowerCase()?.replace("#", "")?.replace(",", "") ?: ""
+
+    private fun auditLog(space: Space, enabled: Boolean) {
+        val user = ofNullable(AuthenticatedUserThreadLocal.get()).orElseThrow { RuntimeException(unauthenticated) }
+        val change = ImmutablePair.of("Enabled? $enabled", "Enabled? ${!enabled}")
+        logger.confidentialityChanged(space, change, user, permissionService.isSystemAdministrator(user))
+    }
 
     private fun auditLog(list: List<AdministerConfidentialityRow>, space: Space) {
         val user = ofNullable(AuthenticatedUserThreadLocal.get()).orElseThrow { RuntimeException(unauthenticated) }

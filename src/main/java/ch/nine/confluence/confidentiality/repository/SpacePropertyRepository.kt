@@ -27,17 +27,18 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
                                           private val i18nFactory: I18NBeanFactory) {
     companion object {
         private val log = LogManager.getLogger(this::class.java.name.substringBefore("\$Companion"))
+        private const val DEFAULT_CONFIDENTIALITY = false
         private val expansion = Expansion(VERSION)
     }
 
     fun isConfidentialityEnabled(spaceKey: String): Boolean {
-        return getConfidentialityEnabled(spaceKey)?.toBoolean() ?: false
+        return getConfidentialityEnabled(spaceKey)?.toBoolean() ?: DEFAULT_CONFIDENTIALITY
     }
 
     fun storeProperty(spaceKey: String, isEnabled: Boolean): Boolean {
-        return storePropertyEnabled(spaceKey, isEnabled.toString())
-                .get()?.value?.value
-                ?.toBoolean() ?: false
+        val succeed = storePropertyEnabled(spaceKey, isEnabled.toString())
+                .get().value.value.toBoolean()
+        return !succeed
     }
 
     fun storeProperty(spaceKey: String, list: List<AdministerConfidentialityRow>): List<AdministerConfidentialityRow> {
@@ -51,7 +52,7 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
                 .split(",")
                 .map {
                     val row = it.split("#")
-                    AdministerConfidentialityRow(numOrDefault(row[0], list.size), row[1])
+                    AdministerConfidentialityRow(numOrDefault(row[0], list.size), row[1].trim())
                 }
     }
 
