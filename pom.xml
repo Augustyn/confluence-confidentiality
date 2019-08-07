@@ -32,7 +32,31 @@
         <checksumPolicy>warn</checksumPolicy>
       </releases>
     </repository>
+    <repository>
+      <id>central-repo1</id>
+      <name>Maven central</name>
+      <url>https://repo1.maven.org/maven2/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central-repo1</id>
+      <name>Maven central</name>
+      <url>https://repo1.maven.org/maven2/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencies>
     <!-- ATLASSIAN DEPS -->
@@ -106,9 +130,25 @@
       <scope>provided</scope>
     </dependency>
     <!-- Project deps: -->
+    <dependency> <!-- As since Java 9, it's no longer bundled in JDK -->
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.2.11</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-jdk8</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-js</artifactId>
       <version>${kotlin.version}</version>
     </dependency>
     <dependency>
@@ -120,6 +160,8 @@
   </dependencies>
 
   <build>
+    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+<!--    <testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>-->
     <plugins>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
@@ -149,6 +191,12 @@
             <goals>
               <goal>compile</goal>
             </goals>
+            <configuration>
+              <sourceDirs>
+                <source>${project.basedir}/src/main/java</source>
+                <source>${project.basedir}/src/main/resources</source>
+              </sourceDirs>
+            </configuration>
           </execution>
           <execution>
             <id>test-compile</id>
@@ -156,6 +204,12 @@
             <goals>
               <goal>test-compile</goal>
             </goals>
+            <!--<configuration>
+              <sourceDirs>
+                <source>${project.basedir}/src/test/java</source>
+                <source>${project.basedir}/src/test/resources</source>
+              </sourceDirs>
+            </configuration>-->
           </execution>
         </executions>
       </plugin>
@@ -163,28 +217,24 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.6.2</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
         <executions>
+          <!-- Replacing default-compile as it is treated specially by maven -->
           <execution>
             <id>default-compile</id>
             <phase>none</phase>
           </execution>
+          <!-- Replacing default-testCompile as it is treated specially by maven -->
           <execution>
             <id>default-testCompile</id>
             <phase>none</phase>
           </execution>
           <execution>
-            <id>compile</id>
+            <id>java-compile</id>
             <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
+            <goals> <goal>compile</goal> </goals>
           </execution>
           <execution>
-            <id>testCompile</id>
+            <id>java-test-compile</id>
             <phase>test-compile</phase>
             <goals>
               <goal>testCompile</goal>
@@ -204,8 +254,11 @@
     <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
     <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
     <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-    <kotlin.version>1.1.2-3</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <kotlin.version>1.3.41</kotlin.version>
+    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+    <kotlin.compiler.jvmTarget>${maven.compiler.target}</kotlin.compiler.jvmTarget>
+    <kotlin.compiler.languageVersion>1.3</kotlin.compiler.languageVersion>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>

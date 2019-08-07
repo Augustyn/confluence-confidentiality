@@ -4,6 +4,25 @@ This is a Confluence plugin that provides a confidentiality setting for each pag
 
 ![A screenshot of the plugin in action](https://i.imgur.com/w0T7zKF.png)
 
+# Space confidentiality configuration
+By default plugin is not enabled for any space.
+One have to enable it by going to either: Space Tools -> Addons, or Space menu -> Confidentiality
+
+![Space menu](space_menu.png)
+
+Option is visible only for space admin.
+
+Space confidentiality options can be set after enabling confidentiality for space:
+![Space addons](space_options.png)
+
+### Storing confidentiality options
+Space confidentiality options are displayed as capitalized by default. 
+
+Confidentiality options can be written either case, but in the process of normalization all letters will be converted to lowercase.
+Due the way the confidentiality are stored by confluence, signs: # and , will be removed.
+
+All confidentiality options length cannot exceed 322768 signs (with # and , as fields separators), it's confluence restriction.
+
 # What's inside
 
 Here are the SDK commands you'll use immediately:

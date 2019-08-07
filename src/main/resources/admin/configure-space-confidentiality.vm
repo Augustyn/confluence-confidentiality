@@ -10,7 +10,6 @@
         #decoratorParam("helper" $action.helper)
         ## Name of the tab to highlight: space-administration is also valid.
         #decoratorParam("context" "space-operations")
-
         #applyDecorator ("root")
             ## The .vmd to use - This one displays both in Space Admin and Space Tools.
             #decoratorParam ("context" "spaceadminpanel")
@@ -35,12 +34,10 @@
                         <aui-toggle label="toggle button" id="toggle-confidentiality" #if ($action.confidentialityEnabled() == true) checked="" #end></aui-toggle>
                     </div>
                     <div class="field-group" id="confidentiality-list-wrapper">
-##                        #if($action.confidentialityEnabled())
                         <label for="space-confidentiality-table"></label>
                         <table id="space-confidentiality-table">
                             ## filled by JS.
                         </table>
-##                        #end
                     </div>
                 </div>
             </body>

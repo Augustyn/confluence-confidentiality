@@ -36,9 +36,9 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
     }
 
     fun storeProperty(spaceKey: String, isEnabled: Boolean): Boolean {
-        val succeed = storePropertyEnabled(spaceKey, isEnabled.toString())
-                .get().value.value.toBoolean()
-        return !succeed
+        val storedValue = storePropertyEnabled(spaceKey, isEnabled.toString())
+                .get()?.value?.value?.toBoolean() ?: isEnabled
+        return !storedValue
     }
 
     fun storeProperty(spaceKey: String, list: List<AdministerConfidentialityRow>): List<AdministerConfidentialityRow> {
@@ -116,12 +116,9 @@ class SpacePropertyRepository constructor(private val propertyService: SpaceProp
                 .fetchOne()
                 .onEach {
                     val oldVersion = it.version?.number
-                    val newSpaceProperty = toSpaceProperty(spaceKey, propertyString, (oldVersion?.plus(1)
-                            ?: 1), propertyKey)
-                    propertyService.update(newSpaceProperty)
+                    propertyService.update(toSpaceProperty(spaceKey, propertyString, (oldVersion?.plus(1) ?: 1), propertyKey))
                 }.orElse {
-                    val spaceProperty = toSpaceProperty(spaceKey, propertyString, 1, propertyKey)
-                    option(propertyService.create(spaceProperty))
+                    option(propertyService.create(toSpaceProperty(spaceKey, propertyString, 1, propertyKey)))
                 }
     }
 

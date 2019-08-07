@@ -64,7 +64,7 @@
     <!-- Link to confidentiality plugin configuration that's in Tools toolbar -->
     <web-item name="Edit confidentiality tools menu" key="edit-confidentiality-tools-menu-web-ui" section="system.content.action/primary" weight="100">
         <description key="confluence-confidentiality.space.admin.quick.link.manager.description">Allows customization of confidentiality levels in current space.</description>
-        <label key="confluence-confidentiality.space.toolbar.link">Config confidentiality</label>
+        <label key="confluence-confidentiality.space.tools.toolbar">Confidentiality</label>
         <link linkId="configure-confidentiality-action">
             /plugins/${atlassian.plugin.key}/admin/configure.action?key=$generalUtil.urlEncode($helper.spaceKey)
         </link>
@@ -72,20 +72,32 @@
     </web-item>
 
     <!-- Item in Space Tools -->
-    <web-item key="space-admin-quick-link-manager" name="Quick Link Manager in Space Admin" section="system.content.action/addons" weight="100">
-        <label key="confluence-confidentiality.space.tools.quick.link.manager">Confidentiality</label>
-        <link linkId="space-admin-quick-link-manager-id">
+    <web-item key="space-tools-quick-link-manager" name="Quick Link Manager in Space Admin" section="system.space.tools/addons" weight="100">
+        <label key="confluence-confidentiality.space.tools.link.name">Confidentiality</label>
+        <link linkId="space-tools-quick-link-manager-id">
             /plugins/${atlassian.plugin.key}/admin/configure.action?key=$generalUtil.urlEncode($helper.spaceKey)
         </link>
+        <conditions type="AND">
+            <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpacePermissionCondition">
+                <param name="permission">administer</param>
+            </condition>
+            <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpaceSidebarCondition"/>
+        </conditions>
         <styleClass>aui-button aui-button-subtle</styleClass>
     </web-item>
 
     <!-- Item in Space Admin (for Doc Theme) -->
-    <web-item key="space-admin-quick-link-manager-2" name="Quick Link Manager in Space Admin" section="system.space.admin/addons" weight="100">
+    <web-item key="space-admin-quick-link-manager" name="Quick Link Manager in Space Admin" section="system.space.admin/addons" weight="100">
         <label key="confluence-confidentiality.space.admin.quick.link.manager">Confidentiality</label>
-        <link linkId="space-admin-quick-link-manager-id2">
+        <link linkId="space-admin-quick-link-manager-id">
             /plugins/${atlassian.plugin.key}/admin/configure.action?key=$generalUtil.urlEncode($helper.spaceKey)
         </link>
+        <conditions type="AND">
+            <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpacePermissionCondition">
+                <param name="permission">administer</param>
+            </condition>
+            <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpaceSidebarCondition" invert="true"/>
+        </conditions>
         <styleClass>aui-button aui-button-subtle</styleClass>
     </web-item>
 

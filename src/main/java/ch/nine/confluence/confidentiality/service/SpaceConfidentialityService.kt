@@ -26,7 +26,9 @@ class SpaceConfidentialityService constructor(private val repository: SpacePrope
     fun changeEnabled(space: Space): Boolean {
         val enabled = repository.isConfidentialityEnabled(space.key)
         auditLog(space, enabled)
-        return repository.storeProperty(space.key, !enabled)
+        val changed = repository.storeProperty(space.key, (!enabled))
+        log.info("Confidentiality for for space: $space was changed to enabled: $changed saving: $enabled")
+        return changed
     }
 
     fun getConfidentiality(space: Space): AdministerConfidentiality {
@@ -43,7 +45,9 @@ class SpaceConfidentialityService constructor(private val repository: SpacePrope
         val normalizedOptions = reCountRowId(options)
         auditLog(listOf(confidentiality), space)
         val savedList = repository.storeProperty(space.key, normalizedOptions)
-        return savedList.first{ normalizeConfidentiality(it.getConfidentiality()) == confidentiality.getConfidentiality() }
+        val normalizedConfidentiality = normalizeConfidentiality(confidentiality.getConfidentiality())
+        for (element in savedList) if (normalizedConfidentiality == element.getConfidentiality()) return element
+        return confidentiality
     }
 
     fun updateConfidentiality(space: Space, id: Int, confidentiality: AdministerConfidentialityRow): AdministerConfidentialityRow {
@@ -55,7 +59,7 @@ class SpaceConfidentialityService constructor(private val repository: SpacePrope
         val old = options[idx]
         val new = AdministerConfidentialityRow(old.getId(), normalizeConfidentiality(confidentiality.getConfidentiality()))
         options[idx] = new
-        return repository.storeProperty(space.key, options).first { it.getId() == id }
+        return repository.storeProperty(space.key, options)[idx]
     }
 
     private fun reCountRowId(options: List<AdministerConfidentialityRow>): List<AdministerConfidentialityRow> {
